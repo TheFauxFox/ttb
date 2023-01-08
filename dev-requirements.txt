@@ -1,7 +1,7 @@
 black
 flake8
 mypy
-refurb
+refurb # cough https://github.com/dosisod/refurb go check him out, he's pretty cool
 isort
 isort[colors]
 types-setuptools
