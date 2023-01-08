@@ -4,6 +4,8 @@ from contextlib import suppress
 from pathlib import Path
 import readline
 
+from .fancy_print import rprint
+
 
 class HistoryConsole(code.InteractiveConsole):
     def __init__(
@@ -24,3 +26,7 @@ class HistoryConsole(code.InteractiveConsole):
     def save_history(self, histfile: str | Path) -> None:
         readline.set_history_length(1000)
         readline.write_history_file(histfile)
+
+    def raw_input(self, prompt: str = ">") -> str:
+        rprint(prompt, end="")
+        return input(" ")

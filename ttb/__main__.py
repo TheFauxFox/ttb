@@ -22,7 +22,6 @@ modfiles = [
 ]
 for path, mod in modfiles:
     mod_path: Path = path / mod
-    print(mod_path)
     imported_mod: ModuleType | None = import_file(mod_path)
     if imported_mod is not None:
         if hasattr(imported_mod, "aliases"):
@@ -37,22 +36,27 @@ inp: HistoryConsole = HistoryConsole("ttb", f"{TTB_DIR}/.hist")
 
 while True:
     try:
-        mod_cmd: str = str(inp.raw_input("> "))
-        cmd, *args = mod_cmd.split()
-        if cmd == "cmds":
-            print(list(mod_names))
-        elif cmd in mod_names:
-            if args:
-                mods[cmd].run(*args)
+        mod_cmd: str = str(
+            inp.raw_input(
+                "[bold][magenta]ttb[/magenta][/bold] [bold][bright_white]>"
+            )
+        )
+        if len(mod_cmd) > 0:
+            cmd, *args = mod_cmd.split()
+            if cmd == "cmds":
+                print(list(mod_names))
+            elif cmd in mod_names:
+                if args:
+                    mods[cmd].run(*args)
+                else:
+                    mods[cmd].run()
+            elif cmd in alias_names:
+                if args:
+                    mods[mod_aliases[cmd]].run(*args)
+                else:
+                    mods[mod_aliases[cmd]].run()
             else:
-                mods[cmd].run()
-        elif cmd in alias_names:
-            if args:
-                mods[mod_aliases[cmd]].run(*args)
-            else:
-                mods[mod_aliases[cmd]].run()
-        else:
-            print("Unknown command (> cmds) for list of commands")
+                print("Unknown command (> cmds) for list of commands")
     except (KeyboardInterrupt, EOFError):
         print("\n^Exit")
         break

@@ -1,6 +1,6 @@
-from rich import print, print_json
 from rich.console import Console
 
-console = Console()
-rprint = print
-jprint = print_json
+console = Console(color_system="truecolor")
+rprint = console.print
+jprint = console.print_json
+cinput = console.input
