@@ -1,8 +1,7 @@
 import os
-from typing import List, Tuple
 
 
-def sorted_ls(path: str) -> List[Tuple[str, float]]:
+def sorted_ls(path: str) -> list[tuple[str, float]]:
     def mtime(entry: os.DirEntry[str]) -> float:
         return entry.stat().st_mtime
 

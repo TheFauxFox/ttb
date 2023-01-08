@@ -1,8 +1,9 @@
 import sys
+from typing import Union
 
-aliases = (".exit", "q")
-help = "Exits the program"
+aliases: tuple[str, ...] = (".exit", "q")
+help: str = "Exits the program"
 
 
-def run(*args):
+def run(*args: Union[int, str]) -> None:
     sys.exit(0)

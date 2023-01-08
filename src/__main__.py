@@ -2,7 +2,6 @@
 import glob
 from pathlib import Path
 from types import ModuleType
-from typing import Dict
 
 from rich.table import Table
 
@@ -17,9 +16,9 @@ BUILTIN_DIR: Path = Path(f"{TTB_DIR}/builtins/")
 mod_files: list[str] = glob.glob(f"{MOD_DIR}/*.py")
 builtin_files: list[str] = glob.glob(f"{BUILTIN_DIR}/*.py")
 
-mods: Dict[str, ModuleType] = {}
-mod_aliases: Dict[str, str] = {}
-modfiles = [
+mods: dict[str, ModuleType] = {}
+mod_aliases: dict[str, str] = {}
+modfiles: list[tuple[Path, str]] = [
     *[(MOD_DIR, x) for x in mod_files],
     *[(BUILTIN_DIR, x) for x in builtin_files],
 ]
@@ -47,7 +46,7 @@ while True:
         if len(mod_cmd.strip()) > 0:
             cmd, *args = mod_cmd.split()
             if cmd == "cmds":
-                table = Table("Command", "Aliases", "Description")
+                table: Table = Table("Command", "Aliases", "Description")
                 for modname in mod_names:
                     table.add_row(
                         modname,
