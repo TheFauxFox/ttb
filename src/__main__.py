@@ -19,15 +19,16 @@ TTB_DIR: str = str(Path(__file__).parent.resolve())
 MOD_DIR: Path = Path(f"{TTB_DIR}/mods/")
 BUILTIN_DIR: Path = Path(f"{TTB_DIR}/builtins/")
 
-mod_files: list[str] = glob(f"{MOD_DIR}/*.py")
-builtin_files: list[str] = glob(f"{BUILTIN_DIR}/*.py")
-
 mods: dict[str, ModuleType] = {}
 mod_aliases: dict[str, str] = {}
 
 
 def load_modules() -> None:
     global mods, mod_aliases
+    mod_files: list[str] = glob(f"{MOD_DIR}/*.py")
+    builtin_files: list[str] = glob(f"{BUILTIN_DIR}/*.py")
+    mods = {}
+    mod_aliases = {}
     modfiles: list[tuple[Path, str]] = [
         *[(MOD_DIR, x) for x in mod_files],
         *[(BUILTIN_DIR, x) for x in builtin_files],
