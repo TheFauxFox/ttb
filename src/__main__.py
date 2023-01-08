@@ -3,6 +3,7 @@ from glob import glob
 from pathlib import Path
 import readline
 from shlex import split
+import sys
 from types import ModuleType
 
 from rich.table import Table
@@ -134,3 +135,4 @@ while True:
         break
 
 observer.join()
+sys.exit(0)
