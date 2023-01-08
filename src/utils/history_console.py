@@ -4,7 +4,7 @@ from contextlib import suppress
 from pathlib import Path
 import readline
 
-from .fancy_print import rprint
+from .fancy_print import get_style_codes
 
 
 class HistoryConsole(code.InteractiveConsole):
@@ -28,5 +28,4 @@ class HistoryConsole(code.InteractiveConsole):
         readline.write_history_file(histfile)
 
     def raw_input(self, prompt: str = ">") -> str:
-        rprint(prompt, end="")
-        return input(" ")
+        return input(get_style_codes(prompt))

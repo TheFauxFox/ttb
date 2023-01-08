@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import glob
 from pathlib import Path
+import readline
 from shlex import split
 from types import ModuleType
 
@@ -35,6 +36,19 @@ for path, mod in modfiles:
 
 mod_names: set[str] = set(mods.keys())
 alias_names: set[str] = set(mod_aliases.keys())
+
+
+def custom_completion(text: str, state: int) -> str | None:
+    options: list[str] = [
+        x for x in [*mod_names, *alias_names] if x.startswith(text)
+    ]
+    try:
+        return options[state]
+    except IndexError:
+        return None
+
+
+readline.set_completer(custom_completion)
 
 inp: HistoryConsole = HistoryConsole("ttb", f"{TTB_DIR}/.hist")
 
