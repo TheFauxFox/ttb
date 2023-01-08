@@ -1,5 +1,5 @@
 # ttb
-### The TerminalToolBox
+### TerminalToolBox
 ---
 Listen. I'm lazy as hell, and would rather spend my time making half-assed scripts to make my life
 barely more efficient. I know I could spend the time it takes to make a script doing what I'm supposed
