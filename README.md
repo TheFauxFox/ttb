@@ -34,7 +34,7 @@ Have fun with that!
 
 ## TODO:
 - [X] Implement `shlex` to allow for quoted arguments (aka allow for spaces lol)
-- [ ] Have some kind of hot-reload for quickly testing scripts without having to bail `ttb`
+- [X] Have some kind of hot-reload for quickly testing scripts without having to bail `ttb`
 - [ ] Idk, make things pretty?
 
 ## Notes:
