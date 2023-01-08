@@ -4,3 +4,4 @@ mypy
 refurb
 isort
 isort[colors]
+types-setuptools
