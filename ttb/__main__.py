@@ -4,6 +4,8 @@ from pathlib import Path
 from types import ModuleType
 from typing import Dict
 
+from rich.table import Table
+from utils.fancy_print import rprint
 from utils.history_console import HistoryConsole
 from utils.import_file import import_file
 
@@ -41,10 +43,21 @@ while True:
                 "[bold][magenta]ttb[/magenta][/bold] [bold][bright_white]>"
             )
         )
-        if len(mod_cmd) > 0:
+        if len(mod_cmd.strip()) > 0:
             cmd, *args = mod_cmd.split()
             if cmd == "cmds":
-                print(list(mod_names))
+                table = Table("Command", "Aliases", "Description")
+                for modname in mod_names:
+                    table.add_row(
+                        modname,
+                        ", ".join(mods[modname].aliases)
+                        if hasattr(mods[modname], "aliases")
+                        else "",
+                        mods[modname].help
+                        if hasattr(mods[modname], "help")
+                        else "",
+                    )
+                rprint(table)
             elif cmd in mod_names:
                 if args:
                     mods[cmd].run(*args)
@@ -56,7 +69,7 @@ while True:
                 else:
                     mods[mod_aliases[cmd]].run()
             else:
-                print("Unknown command (> cmds) for list of commands")
+                print("Unknown command (> cmds) for list of command")
     except (KeyboardInterrupt, EOFError):
         print("\n^Exit")
         break
