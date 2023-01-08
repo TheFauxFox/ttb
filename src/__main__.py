@@ -41,6 +41,7 @@ def load_modules() -> None:
             mods[mod_path.stem] = imported_mod
 
 
+load_modules()
 mod_names: set[str] = set(mods.keys())
 alias_names: set[str] = set(mod_aliases.keys())
 
