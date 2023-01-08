@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 import glob
 from pathlib import Path
+from shlex import split
 from types import ModuleType
 
 from rich.table import Table
 
 from .utils.fancy_print import rprint
+from .utils.get_args import get_arg_len
 from .utils.history_console import HistoryConsole
 from .utils.import_file import import_file
 
@@ -36,6 +38,22 @@ alias_names: set[str] = set(mod_aliases.keys())
 
 inp: HistoryConsole = HistoryConsole("ttb", f"{TTB_DIR}/.hist")
 
+
+def print_help(*module_names: str) -> None:
+    table: Table = Table(
+        "Command", "Aliases", "Usage", "Description", show_lines=True
+    )
+    for modname in module_names:
+        mod: ModuleType = mods[modname]
+        table.add_row(
+            modname,
+            ", ".join(mod.aliases) if hasattr(mod, "aliases") else "",
+            mod.usage if hasattr(mod, "usage") else "",
+            mod.help if hasattr(mod, "help") else "",
+        )
+    rprint(table)
+
+
 while True:
     try:
         mod_cmd: str = str(
@@ -44,30 +62,25 @@ while True:
             )
         )
         if len(mod_cmd.strip()) > 0:
-            cmd, *args = mod_cmd.split()
+            cmd, *args = split(mod_cmd)
             if cmd == "cmds":
-                table: Table = Table("Command", "Aliases", "Description")
-                for modname in mod_names:
-                    table.add_row(
-                        modname,
-                        ", ".join(mods[modname].aliases)
-                        if hasattr(mods[modname], "aliases")
-                        else "",
-                        mods[modname].help
-                        if hasattr(mods[modname], "help")
-                        else "",
-                    )
-                rprint(table)
+                print_help(*mods.keys())
             elif cmd in mod_names:
-                if args:
-                    mods[cmd].run(*args)
+                func = mods[cmd].run
+                if args and get_arg_len(func) == len(args):
+                    func(*args)
+                elif get_arg_len(func) == 0:
+                    func()
                 else:
-                    mods[cmd].run()
+                    print_help(cmd)
             elif cmd in alias_names:
-                if args:
-                    mods[mod_aliases[cmd]].run(*args)
+                func = mods[mod_aliases[cmd]].run
+                if args and get_arg_len(func) == len(args):
+                    func(*args)
+                elif get_arg_len(func) == 0:
+                    func()
                 else:
-                    mods[mod_aliases[cmd]].run()
+                    print_help(cmd)
             else:
                 print("Unknown command (> cmds) for list of command")
     except (KeyboardInterrupt, EOFError):

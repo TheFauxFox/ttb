@@ -23,6 +23,7 @@ The basic script layout is this:
 ```python
 # command.py
 help = "Some description, help string, or argument list. Whatever you decide." # Optional. Will be left blank if it doesn't exist
+usage = "command <message> [optional_param]" # Optional. Will be left blank if it doesn't exist. Good idea to have though.
 aliases = ("cmd", "c", "some_random_alias") # Optional. If left empty, it can only be run from the name of the file.
 
 def run(*args): # Required. *args could be replaced with actual argument names
@@ -32,7 +33,7 @@ It's a good idea to __*not*__ use spaces in the file name or aliases, as all arg
 Have fun with that!
 
 ## TODO:
-- [ ] Implement `shlex` to allow for quoted arguments (aka allow for spaces lol)
+- [X] Implement `shlex` to allow for quoted arguments (aka allow for spaces lol)
 - [ ] Have some kind of hot-reload for quickly testing scripts without having to bail `ttb`
 - [ ] Idk, make things pretty?
 
