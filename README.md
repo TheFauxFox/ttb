@@ -1,12 +1,10 @@
 # ttb
 ### TerminalToolBox
----
 Listen. I'm lazy as hell, and would rather spend my time making half-assed scripts to make my life
 barely more efficient. I know I could spend the time it takes to make a script doing what I'm supposed
 to, but that's just no fun. So why not make a janky and entirely unnecessary yet still enjoyable
 project based around a box of random scripts that I might only use once?
 
----
 
 ## Usage
 
