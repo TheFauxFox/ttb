@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-import glob
+from glob import glob
 from pathlib import Path
 import readline
 from shlex import split
 from types import ModuleType
 
 from rich.table import Table
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
 from .utils.fancy_print import rprint
 from .utils.get_args import get_arg_len
@@ -16,26 +18,48 @@ TTB_DIR: str = str(Path(__file__).parent.resolve())
 MOD_DIR: Path = Path(f"{TTB_DIR}/mods/")
 BUILTIN_DIR: Path = Path(f"{TTB_DIR}/builtins/")
 
-mod_files: list[str] = glob.glob(f"{MOD_DIR}/*.py")
-builtin_files: list[str] = glob.glob(f"{BUILTIN_DIR}/*.py")
+mod_files: list[str] = glob(f"{MOD_DIR}/*.py")
+builtin_files: list[str] = glob(f"{BUILTIN_DIR}/*.py")
 
 mods: dict[str, ModuleType] = {}
 mod_aliases: dict[str, str] = {}
-modfiles: list[tuple[Path, str]] = [
-    *[(MOD_DIR, x) for x in mod_files],
-    *[(BUILTIN_DIR, x) for x in builtin_files],
-]
-for path, mod in modfiles:
-    mod_path: Path = path / mod
-    imported_mod: ModuleType | None = import_file(mod_path)
-    if imported_mod is not None:
-        if hasattr(imported_mod, "aliases"):
-            for item in imported_mod.aliases:
-                mod_aliases[item] = mod_path.stem
-        mods[mod_path.stem] = imported_mod
+
+
+def load_modules() -> None:
+    global mods, mod_aliases
+    modfiles: list[tuple[Path, str]] = [
+        *[(MOD_DIR, x) for x in mod_files],
+        *[(BUILTIN_DIR, x) for x in builtin_files],
+    ]
+    for path, mod in modfiles:
+        mod_path: Path = path / mod
+        imported_mod: ModuleType | None = import_file(mod_path)
+        if imported_mod is not None:
+            if hasattr(imported_mod, "aliases"):
+                for item in imported_mod.aliases:
+                    mod_aliases[item] = mod_path.stem
+            mods[mod_path.stem] = imported_mod
+
 
 mod_names: set[str] = set(mods.keys())
 alias_names: set[str] = set(mod_aliases.keys())
+
+
+def reload() -> None:
+    global mod_names, alias_names
+    load_modules()
+    mod_names = set(mods.keys())
+    alias_names = set(mod_aliases.keys())
+
+
+class Handler(FileSystemEventHandler):
+    @staticmethod
+    def on_modified(_):  # type: ignore
+        reload()
+
+    @staticmethod
+    def on_created(_):  # type: ignore
+        reload()
 
 
 def custom_completion(text: str, state: int) -> str | None:
@@ -68,6 +92,12 @@ def print_help(*module_names: str) -> None:
     rprint(table)
 
 
+evt_handler = Handler()
+observer = Observer()
+observer.schedule(evt_handler, path=MOD_DIR, recursive=True)
+observer.schedule(evt_handler, path=BUILTIN_DIR, recursive=True)
+observer.start()
+
 while True:
     try:
         mod_cmd: str = str(
@@ -99,4 +129,7 @@ while True:
                 print("Unknown command (> cmds) for list of command")
     except (KeyboardInterrupt, EOFError):
         print("\n^Exit")
+        observer.stop()
         break
+
+observer.join()
