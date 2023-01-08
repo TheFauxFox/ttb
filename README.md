@@ -24,7 +24,7 @@ help = "Some description, help string, or argument list. Whatever you decide." #
 usage = "command <message> [optional_param]" # Optional. Will be left blank if it doesn't exist. Good idea to have though.
 aliases = ("cmd", "c", "some_random_alias") # Optional. If left empty, it can only be run from the name of the file.
 
-def run(*args): # Required. *args could be replaced with actual argument names
+def run(*args): # Required. *args should be replaced with actual argument names
     print(args) # Placeholder, do something with it I guess
 ```
 It's a good idea to __*not*__ use spaces in the file name or aliases, as all arguments are currently split on spaces.
