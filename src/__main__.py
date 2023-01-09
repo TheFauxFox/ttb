@@ -30,8 +30,12 @@ def load_modules() -> None:
     mods = {}
     mod_aliases = {}
     modfiles: list[tuple[Path, str]] = [
-        *[(MOD_DIR, x) for x in mod_files],
-        *[(BUILTIN_DIR, x) for x in builtin_files],
+        *[(MOD_DIR, x) for x in mod_files if not x.lower().endswith("__.py")],
+        *[
+            (BUILTIN_DIR, x)
+            for x in builtin_files
+            if not x.lower().endswith("__.py")
+        ],
     ]
     for path, mod in modfiles:
         mod_path: Path = path / mod
