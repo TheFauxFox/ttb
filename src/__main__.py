@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from glob import glob
+import json
 from pathlib import Path
 import readline
 from shlex import split
@@ -18,6 +19,9 @@ from .utils.import_file import import_file
 TTB_DIR: str = str(Path(__file__).parent.resolve())
 MOD_DIR: Path = Path(f"{TTB_DIR}/mods/")
 BUILTIN_DIR: Path = Path(f"{TTB_DIR}/builtins/")
+CONFIG: dict[str, str] = json.load(
+    Path(Path(TTB_DIR).parent / "config.json").open("r")
+)
 
 mods: dict[str, ModuleType] = {}
 mod_aliases: dict[str, str] = {}
@@ -107,11 +111,7 @@ observer.start()
 
 while True:
     try:
-        mod_cmd: str = str(
-            inp.raw_input(
-                "[bold][magenta]ttb[/magenta][/bold] [bold][bright_white]>"
-            )
-        )
+        mod_cmd: str = str(inp.raw_input(CONFIG["prompt"]))
         if len(mod_cmd.strip()) > 0:
             cmd, *args = split(mod_cmd)
             if cmd == "cmds":
@@ -133,7 +133,7 @@ while True:
                 else:
                     print_help(cmd)
             else:
-                print("Unknown command (> cmds) for list of command")
+                rprint("Unknown command `cmds` for list of commands")
     except (KeyboardInterrupt, EOFError):
         print("\n^Exit")
         observer.stop()

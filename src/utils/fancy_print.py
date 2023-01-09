@@ -8,5 +8,5 @@ cinput = console.input
 
 def get_style_codes(txt):
     with console.capture() as capture:
-        rprint(txt, end=" ")
+        rprint(txt, end="")
     return capture.get()
