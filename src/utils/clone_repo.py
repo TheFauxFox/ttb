@@ -1,6 +1,8 @@
 from pathlib import Path
 
-from git import Repo
+from git import FetchInfo, Repo
+
+from .fancy_print import rprint
 
 
 def get_repo_name_from_url(url: str) -> str:
@@ -17,8 +19,17 @@ def get_repo_name_from_url(url: str) -> str:
 
 
 def clone_repo(url: str) -> None:
-    Repo.clone_from(
-        url,
-        Path(__file__).parent.resolve()
-        / f"repos/{get_repo_name_from_url(url)}",
+    repo_name: str = get_repo_name_from_url(url)
+    repo_dir: Path = (
+        Path(__file__).parent.parent.resolve() / f"repos/{repo_name}"
     )
+    if repo_dir.exists():
+        fetch_info: list[FetchInfo] = Repo(repo_dir).remote().pull()
+        if fetch_info[0].flags == 64:
+            rprint(f'Updated repo "{repo_name}"')
+    else:
+        Repo.clone_from(
+            url,
+            repo_dir,
+        )
+        rprint(f'Cloning repo "{repo_name}"')

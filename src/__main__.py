@@ -11,6 +11,7 @@ from rich.table import Table
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
+from .utils.clone_repo import clone_repo
 from .utils.fancy_print import rprint
 from .utils.get_args import get_arg_len
 from .utils.history_console import HistoryConsole
@@ -22,6 +23,9 @@ BUILTIN_DIR: Path = Path(f"{TTB_DIR}/builtins/")
 CONFIG: dict[str, str] = json.load(
     Path(Path(TTB_DIR).parent / "config.json").open("r")
 )
+
+for repo in CONFIG["repositories"]:
+    clone_repo(repo)
 
 mods: dict[str, ModuleType] = {}
 mod_aliases: dict[str, str] = {}

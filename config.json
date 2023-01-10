@@ -1,5 +1,5 @@
 {
-  "repositories": [],
+  "repositories": ["https://github.com/TheFauxFox/ttb-mods"],
   "mod_dirs": [],
   "prompt": "[bold][magenta]ttb[/magenta][/bold] [bold][bright_white]> "
 }
