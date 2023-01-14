@@ -12,7 +12,7 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 from .utils.clone_repo import clone_repo
-from .utils.fancy_print import rprint
+from .utils.fancy_print import print_error, rprint
 from .utils.get_args import get_arg_len
 from .utils.history_console import HistoryConsole
 from .utils.import_file import import_file
@@ -20,12 +20,48 @@ from .utils.import_file import import_file
 TTB_DIR: str = str(Path(__file__).parent.resolve())
 MOD_DIR: Path = Path(f"{TTB_DIR}/mods/")
 BUILTIN_DIR: Path = Path(f"{TTB_DIR}/builtins/")
+REPO_DIR: Path = Path(f"{TTB_DIR}/repos/")
 CONFIG: dict[str, str] = json.load(
     Path(Path(TTB_DIR).parent / "config.json").open("r")
 )
 
-for repo in CONFIG["repositories"]:
-    clone_repo(repo)
+
+def is_valid_mod_dir(path: Path) -> Path | None:
+    if not path.exists():
+        print_error(f"Could not resolve '{path.resolve()}'")
+        return None
+    if (path / "mods").exists():
+        return path
+    elif path.stem == "mods":
+        return path.parent
+    else:
+        print_error(f"'{path.resolve()}' is not a valid module directory")
+        return None
+
+
+def get_local_mod_dirs() -> set[Path]:
+    out: set[Path] = set()
+    for path in [Path(p) for p in CONFIG["local_dirs"]]:
+        valid: Path | None = is_valid_mod_dir(path)
+        if valid:
+            out.add(valid)
+    return out
+
+
+def get_valid_repos() -> set[Path]:
+    out: set[Path] = set()
+    repos: set[Path] = set()
+    for repo in CONFIG["repositories"]:
+        REPO_DIRS.add(clone_repo(repo))
+    for path in repos:
+        valid: Path | None = is_valid_mod_dir(path)
+        if valid:
+            out.add(valid)
+    return out
+
+
+CUSTOM_DIRS: set[Path] = get_local_mod_dirs()
+REPO_DIRS: set[Path] = get_valid_repos()
 
 mods: dict[str, ModuleType] = {}
 mod_aliases: dict[str, str] = {}
@@ -35,16 +71,38 @@ def load_modules() -> None:
     global mods, mod_aliases
     mod_files: list[str] = glob(f"{MOD_DIR}/*.py")
     builtin_files: list[str] = glob(f"{BUILTIN_DIR}/*.py")
+    repo_files: list[tuple[Path, str]] = []
+    custom_files: list[tuple[Path, str]] = []
+
+    for repo_path in REPO_DIRS:
+        repo_files.extend(
+            [
+                (Path(f"{repo_path}/mods"), f)
+                for f in glob(f"{repo_path}/mods/*.py")
+            ]
+        )
+
+    for custom_path in CUSTOM_DIRS:
+        custom_files.extend(
+            [
+                (Path(f"{custom_path}/mods"), f)
+                for f in glob(f"{custom_path}/mods/*.py")
+            ]
+        )
+
     mods = {}
     mod_aliases = {}
+
+    def is_valid(fn: str) -> bool:
+        return not fn.lower().endswith("__.py")
+
     modfiles: list[tuple[Path, str]] = [
-        *[(MOD_DIR, x) for x in mod_files if not x.lower().endswith("__.py")],
-        *[
-            (BUILTIN_DIR, x)
-            for x in builtin_files
-            if not x.lower().endswith("__.py")
-        ],
+        *[(BUILTIN_DIR, fn) for fn in builtin_files if is_valid(fn)],
+        *[(MOD_DIR, fn) for fn in mod_files if is_valid(fn)],
+        *[(path, fn) for path, fn in custom_files if is_valid(fn)],
+        *[(path, fn) for path, fn in repo_files if is_valid(fn)],
     ]
+
     for path, mod in modfiles:
         mod_path: Path = path / mod
         imported_mod: ModuleType | None = import_file(mod_path)

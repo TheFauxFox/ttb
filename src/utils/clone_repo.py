@@ -18,7 +18,7 @@ def get_repo_name_from_url(url: str) -> str:
     return url[last_slash_index + 1 : last_suffix_index]  # noqa: 203
 
 
-def clone_repo(url: str) -> None:
+def clone_repo(url: str) -> Path:
     repo_name: str = get_repo_name_from_url(url)
     repo_dir: Path = (
         Path(__file__).parent.parent.resolve() / f"repos/{repo_name}"
@@ -33,3 +33,4 @@ def clone_repo(url: str) -> None:
             repo_dir,
         )
         rprint(f'Cloning repo "{repo_name}"')
+    return repo_dir

@@ -6,7 +6,11 @@ jprint = console.print_json
 cinput = console.input
 
 
-def get_style_codes(txt):
+def print_error(txt: str) -> None:
+    rprint(f"[[red]ERR[/red]]: {txt}")
+
+
+def get_style_codes(txt: str) -> str:
     with console.capture() as capture:
         rprint(txt, end="")
     return capture.get()
