@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# This pre-commit will automatically create a symlink and run everything
+# below the initial if block
+
+# Change dir to script path
+cd $(dirname "${BASH_SOURCE[0]}");
+# If our script is not in the hooks dir and the hooks dir exists
+if [[ $0 != .git/hooks/* ]] && [[ -d .git/hooks ]]; then
+    echo "Creating Symlink to .git/hooks/pre-commit"
+    # Symlink back to this script
+    ln -sf $PWD/${BASH_SOURCE[0]} .git/hooks/pre-commit
+    exit
+else
+    cd ../../
+    set -e
+    refurb src
+    flake8
+    mypy -p src
+    black -l 79 --check --diff --color --extend-exclude "src/repos" src
+    isort --diff --check -s src/repos/ src
+fi
