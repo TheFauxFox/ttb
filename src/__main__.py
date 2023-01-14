@@ -168,6 +168,8 @@ evt_handler = Handler()
 observer = Observer()
 observer.schedule(evt_handler, path=MOD_DIR, recursive=True)
 observer.schedule(evt_handler, path=BUILTIN_DIR, recursive=True)
+for path in [*REPO_DIRS, *CUSTOM_DIRS]:
+    observer.schedule(evt_handler, path=path, recursive=True)
 observer.start()
 
 while True:
