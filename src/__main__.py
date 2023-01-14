@@ -13,7 +13,7 @@ from watchdog.observers import Observer
 
 from .utils.clone_repo import clone_repo
 from .utils.fancy_print import print_error, rprint
-from .utils.get_args import get_arg_len
+from .utils.get_args import get_opt_arg_len, get_req_arg_len
 from .utils.history_console import HistoryConsole
 from .utils.import_file import import_file
 
@@ -49,9 +49,7 @@ def get_local_mod_dirs() -> set[Path]:
 
 def get_valid_repos() -> set[Path]:
     out: set[Path] = set()
-    repos: set[Path] = set()
-    for repo in CONFIG["repositories"]:
-        repos.add(clone_repo(repo))
+    repos: set[Path] = set(clone_repo(repo) for repo in CONFIG["repositories"])
     for path in repos:
         valid: Path | None = is_valid_mod_dir(path)
         if valid:
@@ -136,7 +134,7 @@ class Handler(FileSystemEventHandler):
 
 def custom_completion(text: str, state: int) -> str | None:
     options: list[str] = [
-        x for x in [*mod_names, *alias_names] if x.startswith(text)
+        x for x in (*mod_names, *alias_names) if x.startswith(text)
     ]
     try:
         return options[state]
@@ -168,35 +166,36 @@ evt_handler = Handler()
 observer = Observer()
 observer.schedule(evt_handler, path=MOD_DIR, recursive=True)
 observer.schedule(evt_handler, path=BUILTIN_DIR, recursive=True)
-for path in [*REPO_DIRS, *CUSTOM_DIRS]:
+for path in (*REPO_DIRS, *CUSTOM_DIRS):
     observer.schedule(evt_handler, path=path, recursive=True)
 observer.start()
+
+
+def handle_func_args(func, args):
+    opt_args: int = get_opt_arg_len(func)
+    req_args: int = get_req_arg_len(func)
+    arg_len: int = len(args)
+    if arg_len == req_args:
+        func(*args)
+    elif arg_len > req_args and arg_len <= req_args + opt_args:
+        func(*args)
+    else:
+        print_help(cmd)
+
 
 while True:
     try:
         mod_cmd: str = str(inp.raw_input(CONFIG["prompt"]))
         if len(mod_cmd.strip()) > 0:
             cmd, *args = split(mod_cmd)
-            if cmd == "cmds":
+            if cmd in ("cmds", "help"):
                 print_help(*mods.keys())
             elif cmd in mod_names:
-                func = mods[cmd].run
-                if args and get_arg_len(func) == len(args):
-                    func(*args)
-                elif get_arg_len(func) == 0:
-                    func()
-                else:
-                    print_help(cmd)
+                handle_func_args(mods[cmd].run, args)
             elif cmd in alias_names:
-                func = mods[mod_aliases[cmd]].run
-                if args and get_arg_len(func) == len(args):
-                    func(*args)
-                elif get_arg_len(func) == 0:
-                    func()
-                else:
-                    print_help(cmd)
+                handle_func_args(mods[mod_aliases[cmd]].run, args)
             else:
-                rprint("Unknown command `cmds` for list of commands")
+                rprint("Unknown command `cmds` or `help` for list of commands")
     except (KeyboardInterrupt, EOFError):
         print("\n^Exit")
         observer.stop()
