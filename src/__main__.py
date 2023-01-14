@@ -20,7 +20,6 @@ from .utils.import_file import import_file
 TTB_DIR: str = str(Path(__file__).parent.resolve())
 MOD_DIR: Path = Path(f"{TTB_DIR}/mods/")
 BUILTIN_DIR: Path = Path(f"{TTB_DIR}/builtins/")
-REPO_DIR: Path = Path(f"{TTB_DIR}/repos/")
 CONFIG: dict[str, str] = json.load(
     Path(Path(TTB_DIR).parent / "config.json").open("r")
 )
