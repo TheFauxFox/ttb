@@ -51,7 +51,7 @@ def get_valid_repos() -> set[Path]:
     out: set[Path] = set()
     repos: set[Path] = set()
     for repo in CONFIG["repositories"]:
-        REPO_DIRS.add(clone_repo(repo))
+        repos.add(clone_repo(repo))
     for path in repos:
         valid: Path | None = is_valid_mod_dir(path)
         if valid:
